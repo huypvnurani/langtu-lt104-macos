@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/huypvnurani/probable-giggle/releases/latest"><b>⬇ Download for Mac</b></a>
+  <a href="https://github.com/huypvnurani/langtu-lt104-macos/releases/latest"><b>⬇ Download for Mac</b></a>
   · macOS 14+ · Apple Silicon & Intel (Universal)
 </p>
 
@@ -47,7 +47,7 @@ Other LANGTU models with a screen (LT75, LT84…) may use a similar protocol but
 
 ## Install
 
-1. Download `YuhKeyScreen-x.y.z.zip` from [Releases](https://github.com/huypvnurani/probable-giggle/releases/latest)
+1. Download `YuhKeyScreen-x.y.z.zip` from [Releases](https://github.com/huypvnurani/langtu-lt104-macos/releases/latest)
    and unzip it.
 2. Move **YuhKeyScreen.app** to **Applications**.
 3. The app is not notarized by Apple, so the first launch is blocked. Either:
@@ -82,8 +82,8 @@ Other LANGTU models with a screen (LT75, LT84…) may use a similar protocol but
 Requires Xcode 15+ (or the Command Line Tools with Swift 5.10+).
 
 ```bash
-git clone https://github.com/huypvnurani/probable-giggle.git
-cd probable-giggle
+git clone https://github.com/huypvnurani/langtu-lt104-macos.git
+cd langtu-lt104-macos
 ./build.sh            # → dist/YuhKeyScreen.app and dist/YuhKeyScreen-x.y.z.zip
 ./build.sh --install  # also copies to /Applications and launches it
 ```

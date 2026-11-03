@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/huypvnurani/probable-giggle/releases/latest"><b>⬇ 下载 Mac 版</b></a>
+  <a href="https://github.com/huypvnurani/langtu-lt104-macos/releases/latest"><b>⬇ 下载 Mac 版</b></a>
   · macOS 14 及以上 · 支持 Apple 芯片与 Intel（通用版）
 </p>
 
@@ -43,7 +43,7 @@
 
 ## 安装
 
-1. 在 [Releases](https://github.com/huypvnurani/probable-giggle/releases/latest) 下载 `YuhKeyScreen-x.y.z.zip` 并解压。
+1. 在 [Releases](https://github.com/huypvnurani/langtu-lt104-macos/releases/latest) 下载 `YuhKeyScreen-x.y.z.zip` 并解压。
 2. 将 **YuhKeyScreen.app** 拖到「应用程序」文件夹。
 3. 本应用未经 Apple 公证，首次打开会被拦截，可任选一种方式：
    - 先打开一次，然后进入 **系统设置 → 隐私与安全性**，点击 **仍要打开**；或
@@ -74,8 +74,8 @@
 需要 Xcode 15 及以上（或带 Swift 5.10 以上的 Command Line Tools）。
 
 ```bash
-git clone https://github.com/huypvnurani/probable-giggle.git
-cd probable-giggle
+git clone https://github.com/huypvnurani/langtu-lt104-macos.git
+cd langtu-lt104-macos
 ./build.sh            # → dist/YuhKeyScreen.app 和 dist/YuhKeyScreen-x.y.z.zip
 ./build.sh --install  # 同时复制到 /Applications 并启动
 ```

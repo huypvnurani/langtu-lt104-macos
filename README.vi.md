@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/huypvnurani/probable-giggle/releases/latest"><b>⬇ Tải về cho Mac</b></a>
+  <a href="https://github.com/huypvnurani/langtu-lt104-macos/releases/latest"><b>⬇ Tải về cho Mac</b></a>
   · macOS 14 trở lên · Apple Silicon và Intel (Universal)
 </p>
 
@@ -47,7 +47,7 @@ Các model LANGTU khác có màn hình (LT75, LT84…) có thể dùng giao th�
 
 ## Cài đặt
 
-1. Tải file `YuhKeyScreen-x.y.z.zip` ở mục [Releases](https://github.com/huypvnurani/probable-giggle/releases/latest)
+1. Tải file `YuhKeyScreen-x.y.z.zip` ở mục [Releases](https://github.com/huypvnurani/langtu-lt104-macos/releases/latest)
    và giải nén.
 2. Kéo **YuhKeyScreen.app** vào **Applications**.
 3. App chưa được Apple notarize nên lần đầu mở sẽ bị chặn. Làm một trong hai cách:
@@ -81,8 +81,8 @@ Các model LANGTU khác có màn hình (LT75, LT84…) có thể dùng giao th�
 Cần Xcode 15 trở lên (hoặc Command Line Tools có Swift 5.10 trở lên).
 
 ```bash
-git clone https://github.com/huypvnurani/probable-giggle.git
-cd probable-giggle
+git clone https://github.com/huypvnurani/langtu-lt104-macos.git
+cd langtu-lt104-macos
 ./build.sh            # → dist/YuhKeyScreen.app và dist/YuhKeyScreen-x.y.z.zip
 ./build.sh --install  # copy luôn vào /Applications và mở app
 ```
