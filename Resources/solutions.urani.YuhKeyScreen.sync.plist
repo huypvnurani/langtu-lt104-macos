@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Đồng bộ giờ nền: khi đăng nhập, mỗi giờ, và khi cắm LT104 (0c45:8009). Đăng ký qua SMAppService.agent. -->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>solutions.urani.YuhKeyScreen.sync</string>
+	<key>BundleProgram</key>
+	<string>Contents/MacOS/YuhKeyScreen</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>YuhKeyScreen</string>
+		<string>--background-sync</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StartInterval</key>
+	<integer>3600</integer>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>LaunchEvents</key>
+	<dict>
+		<key>com.apple.iokit.matching</key>
+		<dict>
+			<key>solutions.urani.YuhKeyScreen.plugged</key>
+			<dict>
+				<key>IOProviderClass</key>
+				<string>IOUSBHostDevice</string>
+				<key>idVendor</key>
+				<integer>3141</integer>
+				<key>idProduct</key>
+				<integer>32777</integer>
+				<key>IOMatchLaunchStream</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

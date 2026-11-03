@@ -11,15 +11,36 @@ final class KeyboardModel: ObservableObject {
     @Published private(set) var uploadProgress: Double?
 
     @Published var autoSync = UserDefaults.standard.object(forKey: "autoSync") as? Bool ?? true {
-        didSet { UserDefaults.standard.set(autoSync, forKey: "autoSync") }
+        didSet {
+            UserDefaults.standard.set(autoSync, forKey: "autoSync")
+            applyBackgroundSync()
+        }
     }
+    /// Tắt: app là cửa sổ bình thường, đóng cửa sổ là thoát. Bật: ở lại trên menu bar.
+    @Published var showInMenuBar = KeyboardModel.showsInMenuBar {
+        didSet {
+            UserDefaults.standard.set(showInMenuBar, forKey: "showInMenuBar")
+            NSApp.setActivationPolicy(showInMenuBar ? .accessory : .regular)
+            if !showInMenuBar && launchAtLogin { launchAtLogin = false }
+        }
+    }
+    static var showsInMenuBar: Bool { UserDefaults.standard.bool(forKey: "showInMenuBar") }
     @Published var scaleMode = ScaleMode(rawValue: UserDefaults.standard.string(forKey: "scaleMode") ?? "") ?? .fill {
         didSet {
             UserDefaults.standard.set(scaleMode.rawValue, forKey: "scaleMode")
-            reloadSelection()
+            rebuild()
         }
     }
-    @Published private(set) var selectedURL: URL?
+    /// Các ảnh sẽ ghép thành animation, theo đúng thứ tự hiện.
+    @Published private(set) var sources: [SourceImage] = []
+    @Published var selectedSource = 0
+    /// Mỗi ảnh tĩnh hiện bao lâu khi ghép nhiều ảnh (giây).
+    @Published var slideDelay = UserDefaults.standard.object(forKey: "slideDelay") as? Double ?? 1.0 {
+        didSet {
+            UserDefaults.standard.set(slideDelay, forKey: "slideDelay")
+            rebuild()
+        }
+    }
     @Published private(set) var animation: LCDAnimation?
     @Published var launchAtLogin = SMAppService.mainApp.status == .enabled {
         didSet { applyLaunchAtLogin() }
@@ -31,21 +52,27 @@ final class KeyboardModel: ObservableObject {
     private let deviceQueue = DispatchQueue(label: "solutions.urani.YuhKeyScreen.device")
     private var notifyPort: IONotificationPortRef?
     private var hotplugIterators: [io_iterator_t] = []
-    private var timer: Timer?
 
-    /// Đồng hồ trên bàn phím tự chạy và trôi dần, nên đồng bộ lại định kỳ.
-    private static let resyncInterval: TimeInterval = 60 * 60
+    /// Đồng bộ giờ khi app đã thoát (Resources/solutions.urani.YuhKeyScreen.sync.plist):
+    /// launchd chạy `--background-sync` khi đăng nhập, mỗi giờ và khi cắm bàn phím.
+    private static let backgroundSync = SMAppService.agent(plistName: "solutions.urani.YuhKeyScreen.sync.plist")
 
-    init() {
+    static let shared = KeyboardModel()
+
+    private init() {}
+
+    /// Gọi sau khi app khởi động xong, không gọi trong lúc SwiftUI dựng scene
+    /// (đổi @Published lúc đó làm SwiftUI cập nhật lặp vô hạn).
+    func start() {
         watchHotplug()
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.autoSyncSoon(after: 3) }
         }
-        timer = Timer.scheduledTimer(withTimeInterval: Self.resyncInterval, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.autoSyncSoon(after: 0) }
-        }
+        if autoSync && Self.backgroundSync.status != .enabled { applyBackgroundSync() }
+        // Mở cùng macOS chỉ có ý nghĩa ở chế độ menu bar.
+        if !showInMenuBar && launchAtLogin { launchAtLogin = false }
         autoSyncSoon(after: 1)
     }
 
@@ -76,20 +103,77 @@ final class KeyboardModel: ObservableObject {
 
     // MARK: - Màn hình
 
-    func select(_ url: URL) {
-        selectedURL = url
-        reloadSelection()
+    /// Thay toàn bộ danh sách (nút chọn ảnh).
+    func replaceSources(with urls: [URL]) {
+        sources = []
+        addSources(urls)
     }
 
-    private func reloadSelection() {
-        guard let url = selectedURL else { return }
-        do {
-            animation = try LCDAnimation.load(from: url, mode: scaleMode)
-            status = animation!.truncated ? tr("The file has more than \(LCDAnimation.maxFrames) frames, only the first \(LCDAnimation.maxFrames) are used.", "File có hơn \(LCDAnimation.maxFrames) khung, chỉ lấy \(LCDAnimation.maxFrames) khung đầu.", "文件超过 \(LCDAnimation.maxFrames) 帧，只使用前 \(LCDAnimation.maxFrames) 帧。") : nil
-        } catch {
-            animation = nil
-            status = error.localizedDescription
+    /// Thêm vào cuối danh sách (kéo thả, nút thêm ảnh). Nhiều file thì xếp theo tên.
+    func addSources(_ urls: [URL]) {
+        var failed: [String] = []
+        let sorted = urls.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+        let firstNew = sources.count
+        for url in sorted {
+            if let img = try? SourceImage.load(url) {
+                sources.append(img)
+            } else {
+                failed.append(url.lastPathComponent)
+            }
         }
+        if sources.count > firstNew { selectedSource = firstNew }
+        rebuild()
+        if !failed.isEmpty {
+            status = ImageLoadError.unreadable(failed.joined(separator: ", ")).localizedDescription
+        }
+    }
+
+    func removeSource(at i: Int) {
+        guard sources.indices.contains(i) else { return }
+        sources.remove(at: i)
+        selectedSource = min(selectedSource, max(0, sources.count - 1))
+        rebuild()
+    }
+
+    func moveSource(at i: Int, by delta: Int) {
+        let j = i + delta
+        guard sources.indices.contains(i), sources.indices.contains(j) else { return }
+        sources.swapAt(i, j)
+        selectedSource = j
+        rebuild()
+    }
+
+    func setOffset(_ offset: CGPoint, forSource i: Int) {
+        guard sources.indices.contains(i) else { return }
+        sources[i].offset = offset
+        rebuild()
+    }
+
+    /// Zoom đang kéo slider: chỉ khung xem trước dùng, thả tay mới dựng lại animation.
+    @Published var previewZoom: Double?
+
+    func setZoom(_ zoom: Double, forSource i: Int) {
+        guard sources.indices.contains(i) else { return }
+        previewZoom = nil
+        let z = min(SourceImage.zoomRange.upperBound, max(SourceImage.zoomRange.lowerBound, zoom))
+        guard z != sources[i].zoom else { return }
+        sources[i].zoom = z
+        rebuild()
+    }
+
+    /// Ảnh đang chỉnh được (vị trí, zoom): ảnh duy nhất, hoặc ảnh được chọn khi dừng phát.
+    func editableSource(playing: Bool) -> Int? {
+        let i = sources.count == 1 ? 0 : (playing ? -1 : selectedSource)
+        return sources.indices.contains(i) ? i : nil
+    }
+
+    private func rebuild() {
+        animation = LCDAnimation.build(from: sources, mode: scaleMode, slideDelay: slideDelay)
+        status = animation?.truncated == true
+            ? tr("More than \(LCDAnimation.maxFrames) frames in total, only the first \(LCDAnimation.maxFrames) are used.",
+                 "Tổng cộng hơn \(LCDAnimation.maxFrames) khung, chỉ lấy \(LCDAnimation.maxFrames) khung đầu.",
+                 "总帧数超过 \(LCDAnimation.maxFrames) 帧，只使用前 \(LCDAnimation.maxFrames) 帧。")
+            : nil
     }
 
     func upload() {
@@ -140,7 +224,25 @@ final class KeyboardModel: ObservableObject {
         if plugged { autoSyncSoon(after: 1.5) }
     }
 
-    // MARK: - Mở cùng macOS
+    // MARK: - Chạy nền / mở cùng macOS
+
+    private func applyBackgroundSync() {
+        do {
+            if autoSync {
+                try Self.backgroundSync.register()
+            } else {
+                try Self.backgroundSync.unregister()
+            }
+        } catch {
+            status = tr("Couldn't change background sync: ", "Không bật/tắt được đồng bộ nền: ", "无法更改后台同步：") + error.localizedDescription
+        }
+        if autoSync && Self.backgroundSync.status == .requiresApproval {
+            status = tr("Allow YuhKeyScreen in System Settings → General → Login Items so it can sync in the background.",
+                        "Hãy cho phép YuhKeyScreen trong System Settings → General → Login Items để đồng bộ nền.",
+                        "请在 系统设置 → 通用 → 登录项 中允许 YuhKeyScreen 在后台运行。")
+            SMAppService.openSystemSettingsLoginItems()
+        }
+    }
 
     private func applyLaunchAtLogin() {
         do {

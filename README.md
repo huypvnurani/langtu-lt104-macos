@@ -29,7 +29,13 @@
 - **Custom screen animation** — drag & drop an animated GIF, APNG, WebP, PNG, JPEG or HEIC.
   Preview it at the real 160×80 resolution and frame timing, choose *Fill* or *Fit*, then upload.
   The animation is stored on the keyboard and keeps playing even when unplugged.
-- **Menu bar app** — lives in the menu bar, no Dock icon. Optional *Launch at login*.
+- **Position & zoom** — drag a large image to choose which part shows (the cursor turns into a hand,
+  double-click to center), and zoom from 50% to 400% with a slider or by typing an exact percentage.
+- **Slideshow from several images** — pick or drop multiple images (and GIFs) to combine them into one
+  animation. Reorder, remove, set how long each image stays, and position/zoom each one separately.
+- **Open, set up, quit** — the clock keeps syncing in the background (at login, every hour and the moment
+  the keyboard is plugged in) even after you quit the app. Prefer it always at hand? Turn on
+  *Show in menu bar*, with optional *Launch at login*.
 - **No driver, no kernel extension, no admin password.** Talks to the keyboard over USB
   with Apple's IOKit / IOUSBHost APIs.
 - **English, Tiếng Việt, 简体中文** interface, picked from your macOS language.
@@ -56,11 +62,13 @@ Other LANGTU models with a screen (LT75, LT84…) may use a similar protocol but
      ```bash
      xattr -dr com.apple.quarantine /Applications/YuhKeyScreen.app
      ```
-4. Plug the keyboard in with the USB cable and click the ⌨️ icon in the menu bar.
+4. Plug the keyboard in with the USB cable and open YuhKeyScreen. If macOS asks, allow it under
+   **System Settings → General → Login Items** so the clock can sync in the background.
 
 ## Usage
 
-- **Sync now** sets the time immediately. Leave *Auto-sync* on and you never have to think about it.
+- **Sync now** sets the time immediately. Leave *Auto-sync* on and you never have to think about it,
+  even after quitting the app.
 - **Choose image/GIF…** (or drop a file on the preview), then **Upload to keyboard**.
   An 18-frame GIF takes about 17 seconds. While uploading, the keyboard backlight turns off
   for a moment — the official Windows software does the same, it's a limit of the keyboard's chip.
@@ -73,7 +81,7 @@ Other LANGTU models with a screen (LT75, LT84…) may use a similar protocol but
 
 ```bash
 /Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --sync
-/Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --upload my.gif [--fit]
+/Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --upload a.png b.png c.gif [--fit] [--delay 0.5]
 /Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --launch-at-login on|off
 ```
 
@@ -114,9 +122,14 @@ Not yet. The lighting protocol is known, so it may come in a later version.
 **Does it work over Bluetooth or the 2.4G dongle?**
 No, the keyboard only accepts screen and clock commands over the USB cable.
 
+## Contact
+
+Questions, bug reports or a keyboard model to support: [gettesterinfo@gmail.com](mailto:gettesterinfo@gmail.com) or open an
+[issue](https://github.com/huypvnurani/langtu-lt104-macos/issues).
+
 ## License
 
-[GPL-3.0](LICENSE). Not affiliated with LANGTU.
+Copyright © November 2026 YuhTahn. [GPL-3.0](LICENSE). Not affiliated with LANGTU.
 
 <sub>Keywords: LANGTU LT104 Mac, LT-104 keyboard macOS software, 狼途 LT104 Mac 驱动, LANGTU keyboard
 screen GIF Mac, LANGTU driver macOS, keyboard LCD clock sync Mac, 0c45:8009.</sub>

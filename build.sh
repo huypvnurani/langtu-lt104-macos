@@ -24,6 +24,9 @@ if [[ ! -f Resources/AppIcon.icns || tools/make-icon.swift -nt Resources/AppIcon
   rm -rf "$TMP"
 fi
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+cp -R Resources/*.lproj "$APP/Contents/Resources/"
+mkdir -p "$APP/Contents/Library/LaunchAgents"
+cp Resources/solutions.urani.YuhKeyScreen.sync.plist "$APP/Contents/Library/LaunchAgents/"
 codesign --force --sign - "$APP"
 echo "Built $APP"
 

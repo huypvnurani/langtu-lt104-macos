@@ -26,7 +26,12 @@
   插入键盘、Mac 从睡眠唤醒以及每小时都会自动同步（键盘自带时钟会逐渐走偏）。
 - **自定义屏幕动画**：拖入 GIF、APNG、WebP、PNG、JPEG 或 HEIC，按真实的 160×80 分辨率和帧速预览，
   选择「填充」或「适应」后上传。动画保存在键盘里，拔掉数据线后依然循环播放。
-- **菜单栏应用**：常驻菜单栏，不占用程序坞，可选「登录时启动」。
+- **调整位置与缩放**：图片大于屏幕时可拖动选择显示区域（光标变为手形，双击居中），
+  并可通过滑块或直接输入百分比在 50%–400% 之间缩放。
+- **多张图片合成动画**：选择或拖入多张图片（及 GIF）合成一个动画，可调整顺序、删除、
+  设置每张图片的显示时长，并分别调整每张图片的位置与缩放。
+- **设置完即可退出**：退出应用后，时钟仍会在后台自动同步（登录时、每小时以及插入键盘时）。
+  想常驻菜单栏？开启「在菜单栏显示」，并可选「登录时启动」。
 - **无需驱动、无需内核扩展、无需管理员密码**，通过 Apple 的 IOKit / IOUSBHost 直接与键盘 USB 通信。
 - 界面支持 **English、Tiếng Việt、简体中文**，自动跟随 macOS 系统语言。
 - 支持命令行，便于脚本调用。
@@ -51,11 +56,12 @@
      ```bash
      xattr -dr com.apple.quarantine /Applications/YuhKeyScreen.app
      ```
-4. 用 USB 数据线连接键盘，点击菜单栏中的 ⌨️ 图标。
+4. 用 USB 数据线连接键盘并打开 YuhKeyScreen。如 macOS 提示，请在 **系统设置 → 通用 → 登录项** 中允许，
+   以便在后台同步时钟。
 
 ## 使用
 
-- 点击 **立即同步** 马上校准时间；开启「自动同步」后无需再操作。
+- 点击 **立即同步** 马上校准时间；开启「自动同步」后无需再操作，退出应用后依然有效。
 - 点击 **选择图片/GIF…**（或把文件拖到预览框），然后点击 **上传到键盘**。
   18 帧的 GIF 约需 17 秒。上传期间键盘背光会暂时熄灭，官方 Windows 软件也是如此，这是键盘芯片的限制。
 - 上传会覆盖键盘上现有的动画。如需恢复出厂画面，上传 [`samples/factory.gif`](samples/factory.gif)。
@@ -65,7 +71,7 @@
 
 ```bash
 /Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --sync
-/Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --upload my.gif [--fit]
+/Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --upload a.png b.png c.gif [--fit] [--delay 0.5]
 /Applications/YuhKeyScreen.app/Contents/MacOS/YuhKeyScreen --launch-at-login on|off
 ```
 
@@ -96,9 +102,14 @@ Windows 程序 `DeviceDriver.exe`。本应用是独立的 Swift macOS 实现。�
 **蓝牙或 2.4G 接收器能用吗？**
 不能，键盘只通过 USB 数据线接收屏幕和时钟指令。
 
+## 联系方式
+
+问题反馈、错误报告或希望支持更多键盘型号：[gettesterinfo@gmail.com](mailto:gettesterinfo@gmail.com)，或提交
+[issue](https://github.com/huypvnurani/langtu-lt104-macos/issues)。
+
 ## 许可证
 
-[GPL-3.0](LICENSE)。本项目与狼途 LANGTU 官方无关。
+版权所有 © 2026 年 11 月 YuhTahn。[GPL-3.0](LICENSE)。本项目与狼途 LANGTU 官方无关。
 
 <sub>关键词：狼途 LT104 Mac 驱动，狼途键盘 macOS 软件，LT-104 屏幕 GIF 上传 Mac，狼途键盘时间同步 Mac，
 带屏幕机械键盘 Mac，LANGTU LT104 macOS。</sub>
